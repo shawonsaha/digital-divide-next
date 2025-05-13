@@ -177,8 +177,94 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         .attr("font-size", "12px")
         .attr("font-weight", "bold")
         .attr("fill", chartColors.text)
-        .attr("cursor", "move")
+        .attr("cursor", "grab")
+        .attr("class", "metric-label")
         .text(metric.length > 15 ? metric.substring(0, 12) + "..." : metric)
+        .on("mousedown", (event) => {
+          // Prevent text selection during drag
+          event.preventDefault();
+
+          // Start drag when mouse down on the axis label
+          document.body.style.cursor = "grabbing";
+          const sourceIndex = selectedMetrics.indexOf(metric);
+          startDrag(metric);
+
+          // Create temporary drag overlay
+          const overlay = document.createElement("div");
+          overlay.style.position = "fixed";
+          overlay.style.top = "0";
+          overlay.style.left = "0";
+          overlay.style.width = "100%";
+          overlay.style.height = "100%";
+          overlay.style.zIndex = "9999";
+          overlay.style.cursor = "grabbing";
+
+          const svgRect = svgRef.current?.getBoundingClientRect();
+          if (!svgRect) return;
+
+          // Handle mousemove on the overlay
+          overlay.onmousemove = (e) => {
+            setTooltip({
+              visible: true,
+              x: e.clientX,
+              y: e.clientY,
+              content: <div className="font-bold">{metric}</div>,
+            });
+
+            // Find the closest axis to determine drop position
+            const mouseX = e.clientX - svgRect.left - margin.left;
+            let closestMetricIndex = 0;
+            let minDistance = Infinity;
+
+            selectedMetrics.forEach((m, idx) => {
+              const metricX = xScale(m) || 0;
+              const distance = Math.abs(mouseX - metricX);
+              if (distance < minDistance) {
+                minDistance = distance;
+                closestMetricIndex = idx;
+              }
+            });
+
+            setDragPosition(closestMetricIndex);
+          };
+
+          // Handle mouseup to complete the drag operation
+          overlay.onmouseup = (e) => {
+            // Clean up
+            document.body.removeChild(overlay);
+            document.body.style.cursor = "default";
+            setTooltip((prev) => ({ ...prev, visible: false }));
+
+            // Find the closest axis again to ensure we have the latest position
+            const mouseX = e.clientX - svgRect.left - margin.left;
+            let targetIndex = sourceIndex; // Default to original position
+            let minDistance = Infinity;
+
+            selectedMetrics.forEach((m, idx) => {
+              const metricX = xScale(m) || 0;
+              const distance = Math.abs(mouseX - metricX);
+              if (distance < minDistance) {
+                minDistance = distance;
+                targetIndex = idx;
+              }
+            });
+
+            // Only reorder if we're dropping to a different position
+            if (targetIndex !== sourceIndex) {
+              // Create a new order of metrics
+              const newOrder = [...selectedMetrics];
+              newOrder.splice(sourceIndex, 1); // Remove from original position
+              newOrder.splice(targetIndex, 0, metric); // Insert at new position
+              setSelectedMetrics(newOrder);
+            }
+
+            // Reset drag state
+            setDraggedMetric(null);
+            setDragPosition(null);
+          };
+
+          document.body.appendChild(overlay);
+        })
         .on("mouseover", (event) => {
           if (metric.length > 15) {
             setTooltip({
@@ -327,6 +413,16 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
       .attr("font-weight", "bold")
       .attr("fill", chartColors.text)
       .text("Parallel Coordinates Plot");
+
+    // Add a hint about dragging axes
+    svg
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", 40)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "12px")
+      .attr("fill", chartColors.text)
+      .text("↔️ Drag axis labels to reorder");
   }, [statesData, selectedMetrics, width, height, selectedStates]);
 
   return (
@@ -337,7 +433,8 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         </div>
         <p className="text-sm text-gray-600 mb-2">
           <span className="inline-block mr-1">↔️</span> Drag metrics to reorder
-          them in the plot. Click the × to remove a metric.
+          them in the plot or drag the axis labels directly on the chart. Click
+          the × to remove a metric.
         </p>
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedMetrics.map((metric, index) => (
