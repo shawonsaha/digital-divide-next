@@ -267,33 +267,13 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
       <div className="text-lg font-semibold mb-2 text-gray-800">US Regions</div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-1/2">
+        <div className="lg:w-full">
           <svg
             ref={svgRef}
             width={width}
             height={height}
             className={chartSvgClass}
           />
-        </div>
-
-        <div className="lg:w-1/2">
-          {selectedRegion ? (
-            <div>
-              <h3 className="text-lg font-medium mb-4 text-gray-800">
-                {selectedRegion} Region
-              </h3>
-              <RadarChart
-                statesData={getRegionStates(selectedRegion)}
-                metrics={selectedMetrics}
-                width={width / 2}
-                height={height}
-              />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full border border-gray-300 rounded bg-white text-gray-500 p-4">
-              Select a region on the map to view regional data
-            </div>
-          )}
         </div>
       </div>
 

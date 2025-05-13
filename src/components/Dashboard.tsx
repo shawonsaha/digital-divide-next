@@ -11,6 +11,58 @@ import RegionalMap from "./RegionalMap";
 import { StateData, SelectedState } from "@/types";
 import { fetchCSVData, fetchTopoJSONData, getMetrics } from "@/lib/utils";
 
+// Define regions for the US
+const regions: Record<string, string[]> = {
+  Northeast: ["CT", "ME", "MA", "NH", "RI", "VT", "NJ", "NY", "PA"],
+  Midwest: [
+    "IL",
+    "IN",
+    "MI",
+    "OH",
+    "WI",
+    "IA",
+    "KS",
+    "MN",
+    "MO",
+    "NE",
+    "ND",
+    "SD",
+  ],
+  South: [
+    "DE",
+    "FL",
+    "GA",
+    "MD",
+    "NC",
+    "SC",
+    "VA",
+    "WV",
+    "AL",
+    "KY",
+    "MS",
+    "TN",
+    "AR",
+    "LA",
+    "OK",
+    "TX",
+  ],
+  West: [
+    "AZ",
+    "CO",
+    "ID",
+    "MT",
+    "NV",
+    "NM",
+    "UT",
+    "WY",
+    "AK",
+    "CA",
+    "HI",
+    "OR",
+    "WA",
+  ],
+};
+
 const Dashboard: React.FC = () => {
   const [stateData, setStateData] = useState<StateData[]>([]);
   const [topoData, setTopoData] = useState<any>(null);
@@ -249,9 +301,48 @@ const Dashboard: React.FC = () => {
             <h2 className="text-2xl font-bold mb-6 text-gray-800">
               Interactive Choropleth & Bar Charts
             </h2>
+            <div className="flex justify-end mb-4">
+              <div
+                className="inline-flex items-center rounded-md shadow-sm"
+                role="group"
+              >
+                <button
+                  className={`px-4 py-2 text-sm font-medium ${
+                    !selectedRegion
+                      ? "bg-blue-500 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
+                  } border border-gray-300 rounded-l-lg`}
+                  onClick={() => {
+                    setSelectedRegion(null);
+                    clearSelection();
+                  }}
+                >
+                  State View
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium ${
+                    selectedRegion
+                      ? "bg-blue-500 text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-50"
+                  } border border-l-0 border-gray-300 rounded-r-lg`}
+                  onClick={() => {
+                    // If no region is selected yet, default to Northeast
+                    if (!selectedRegion) {
+                      const regionName = "Northeast";
+                      const regionStates = stateData.filter((d) =>
+                        regions.Northeast.includes(d.state_id)
+                      );
+                      handleRegionSelect(regionName, regionStates);
+                    }
+                  }}
+                >
+                  Region View
+                </button>
+              </div>
+            </div>
             <div className="flex flex-col lg:flex-row gap-6">
               <div className="lg:w-1/2">
-                {topoData && (
+                {topoData && !selectedRegion && (
                   <ChoroplethMap
                     data={stateData}
                     topoData={topoData}
@@ -265,44 +356,85 @@ const Dashboard: React.FC = () => {
                     height={400}
                   />
                 )}
-              </div>
-              <div className="lg:w-1/2">
-                {selectedStates.length === 0 ? (
-                  <GroupBarChart
-                    statesData={stateData.slice(0, 10)} // Show top 10 states
-                    metric={selectedMetric}
-                    onStateSelect={handleStateSelect}
-                    width={600}
-                    height={400}
-                  />
-                ) : (
-                  <GroupBarChart
-                    statesData={selectedStates.map((s) => s.data)}
-                    metric={selectedMetric}
-                    onStateSelect={handleStateSelect}
+                {topoData && selectedRegion && (
+                  <RegionalMap
+                    data={stateData}
+                    topoData={topoData}
+                    selectedMetrics={selectedMetrics}
+                    onRegionSelect={handleRegionSelect}
+                    selectedRegion={selectedRegion}
                     width={600}
                     height={400}
                   />
                 )}
               </div>
+              <div className="lg:w-1/2">
+                {!selectedRegion && (
+                  <>
+                    {selectedStates.length === 0 ? (
+                      <GroupBarChart
+                        statesData={stateData.slice(0, 10)} // Show top 10 states
+                        metric={selectedMetric}
+                        onStateSelect={handleStateSelect}
+                        width={600}
+                        height={400}
+                      />
+                    ) : (
+                      <GroupBarChart
+                        statesData={selectedStates.map((s) => s.data)}
+                        metric={selectedMetric}
+                        onStateSelect={handleStateSelect}
+                        width={600}
+                        height={400}
+                      />
+                    )}
+                  </>
+                )}
+                {selectedRegion && (
+                  <RadarChart
+                    statesData={selectedStates.map((s) => s.data)}
+                    metrics={selectedMetrics}
+                    onMetricSelect={handleMetricSelect}
+                    width={600}
+                    height={400}
+                  />
+                )}
+                {selectedRegion && (
+                  <div className="mt-4">
+                    <h3 className="text-lg font-medium mb-2 text-gray-800">
+                      Selected Metrics
+                    </h3>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {metrics.map((metric) => (
+                        <div
+                          key={metric}
+                          className={`
+                            px-2 py-1 border rounded cursor-pointer
+                            ${
+                              selectedMetrics.includes(metric)
+                                ? "bg-blue-100 border-blue-300 text-blue-800"
+                                : "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-800"
+                            }
+                          `}
+                          onClick={() => {
+                            const newSelectedMetrics = selectedMetrics.includes(
+                              metric
+                            )
+                              ? selectedMetrics.filter((m) => m !== metric)
+                              : [...selectedMetrics, metric];
+                            setSelectedMetrics(newSelectedMetrics);
+                          }}
+                        >
+                          {metric.length > 15
+                            ? metric.substring(0, 12) + "..."
+                            : metric}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
-              Regional Analysis with Radar Charts
-            </h2>
-            {topoData && (
-              <RegionalMap
-                data={stateData}
-                topoData={topoData}
-                selectedMetrics={selectedMetrics}
-                onRegionSelect={handleRegionSelect}
-                selectedRegion={selectedRegion}
-                width={1200}
-                height={500}
-              />
-            )}
           </div>
 
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
