@@ -6,6 +6,11 @@ import * as topojson from "topojson-client";
 import { StateData, TopoJSONFeature } from "@/types";
 import { getStateColor, fipsToStateMap } from "@/lib/utils";
 import RadarChart from "./RadarChart";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 // Define regions for the US
 const regions: Record<string, string[]> = {
@@ -111,6 +116,9 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous elements
 
+    // Set explicit background
+    svg.attr("style", "background-color: white;");
+
     const g = svg.append("g");
 
     // Create path generator
@@ -135,17 +143,17 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
       .attr("d", path as any)
       .attr("fill", (d) => {
         const stateCode = fipsToStateMap[d.id];
-        if (!stateCode) return "#ccc";
+        if (!stateCode) return "#e5e7eb"; // Light gray for unknown states
 
         // Find which region this state belongs to
         const region = Object.entries(regions).find(([_, states]) =>
           states.includes(stateCode)
         );
 
-        if (!region) return "#ccc";
+        if (!region) return "#e5e7eb";
         return regionColorScale(region[0]);
       })
-      .attr("stroke", "#fff")
+      .attr("stroke", "#ffffff")
       .attr("stroke-width", 0.5)
       .attr("class", "state-path")
       .on("mouseover", (event, d) => {
@@ -229,6 +237,7 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("font-weight", "bold")
+          .attr("fill", "#000000") // Ensure text is visible
           .attr("pointer-events", "none")
           .text(regionName);
       }
@@ -254,8 +263,8 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
   };
 
   return (
-    <div className="relative flex flex-col">
-      <div className="text-lg font-semibold mb-2">US Regions</div>
+    <div className="relative flex flex-col bg-white p-4 rounded border border-gray-200">
+      <div className="text-lg font-semibold mb-2 text-gray-800">US Regions</div>
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-1/2">
@@ -263,14 +272,14 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
             ref={svgRef}
             width={width}
             height={height}
-            className="border border-gray-300 bg-white"
+            className={chartSvgClass}
           />
         </div>
 
         <div className="lg:w-1/2">
           {selectedRegion ? (
             <div>
-              <h3 className="text-lg font-medium mb-4">
+              <h3 className="text-lg font-medium mb-4 text-gray-800">
                 {selectedRegion} Region
               </h3>
               <RadarChart
@@ -290,7 +299,7 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
 
       {tooltip.visible && (
         <div
-          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10"
+          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10 text-gray-800"
           style={{
             left: tooltip.x + "px",
             top: tooltip.y + "px",

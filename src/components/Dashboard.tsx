@@ -137,21 +137,24 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">
+    <div className="container mx-auto px-4 py-8 bg-white text-black">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Digital Divide Dashboard
       </h1>
 
       <div className="flex justify-between mb-6">
         <div className="w-full md:w-1/2">
-          <label htmlFor="metric" className="block font-medium mb-2">
+          <label
+            htmlFor="metric"
+            className="block font-medium mb-2 text-gray-700"
+          >
             Select Primary Metric:
           </label>
           <select
             id="metric"
             value={selectedMetric}
             onChange={handleMetricChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-2 border border-gray-300 rounded bg-white text-gray-800"
           >
             {metrics.map((metric) => (
               <option key={metric} value={metric}>
@@ -242,8 +245,8 @@ const Dashboard: React.FC = () => {
       {/* Advanced visualization mode */}
       {visualizationMode === "advanced" && (
         <div className="space-y-12">
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6">
+          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
               Interactive Choropleth & Bar Charts
             </h2>
             <div className="flex flex-col lg:flex-row gap-6">
@@ -285,8 +288,8 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6">
+          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
               Regional Analysis with Radar Charts
             </h2>
             {topoData && (
@@ -302,8 +305,10 @@ const Dashboard: React.FC = () => {
             )}
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6">Multi-State Comparison</h2>
+          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              Multi-State Comparison
+            </h2>
             <div className="flex flex-col space-y-4">
               <div className="flex justify-end">
                 <button
@@ -332,7 +337,7 @@ const Dashboard: React.FC = () => {
                     height={500}
                   />
                   <div className="lg:w-1/2">
-                    <h3 className="text-lg font-medium mb-2">
+                    <h3 className="text-lg font-medium mb-2 text-gray-800">
                       Selected Metrics
                     </h3>
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -343,8 +348,8 @@ const Dashboard: React.FC = () => {
                             px-2 py-1 border rounded cursor-pointer
                             ${
                               selectedMetrics.includes(metric)
-                                ? "bg-blue-100 border-blue-300"
-                                : "bg-gray-100 border-gray-300 hover:bg-gray-200"
+                                ? "bg-blue-100 border-blue-300 text-blue-800"
+                                : "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-800"
                             }
                           `}
                           onClick={() => {
@@ -372,8 +377,8 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-            <h2 className="text-2xl font-bold mb-6">
+          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
               Parallel Coordinates Analysis
             </h2>
             <ParallelCoordinatesPlot

@@ -4,6 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { StateData } from "@/types";
 import { formatValue } from "@/lib/utils";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 interface GroupBarChartProps {
   width?: number;
@@ -44,6 +49,9 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
     // Setup
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+
+    // Set explicit background color
+    svg.attr("style", "background-color: white;");
 
     const margin = { top: 60, right: 30, bottom: 60, left: 60 };
     const chartWidth = width - margin.left - margin.right;
@@ -89,7 +97,8 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
       .attr("transform", "rotate(-45)")
-      .style("font-size", "10px");
+      .style("font-size", "10px")
+      .attr("fill", chartColors.text);
 
     // Draw Y axis
     svg
@@ -97,7 +106,8 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(yScale).ticks(10))
       .selectAll("text")
-      .style("font-size", "10px");
+      .style("font-size", "10px")
+      .attr("fill", chartColors.text);
 
     // Add Y axis label
     svg
@@ -106,6 +116,7 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
       .attr("y", margin.left / 3)
       .attr("x", -(height / 2))
       .attr("text-anchor", "middle")
+      .attr("fill", chartColors.text)
       .text(metric);
 
     // Add bars
@@ -124,7 +135,7 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
         const value = parseFloat(d[metric]);
         return isNaN(value) ? 0 : height - margin.bottom - yScale(value);
       })
-      .attr("fill", "steelblue")
+      .attr("fill", chartColors.bars)
       .on("mouseover", (event, d) => {
         setTooltip({
           visible: true,
@@ -162,8 +173,9 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
       .attr("x", width / 2)
       .attr("y", 20)
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "bold")
+      .attr("font-size", "16px")
+      .attr("font-weight", "bold")
+      .attr("fill", chartColors.text)
       .text(`${metric} by State`);
   }, [statesData, metric, width, height, sortOrder, onStateSelect]);
 
@@ -193,12 +205,12 @@ const GroupBarChart: React.FC<GroupBarChartProps> = ({
         ref={svgRef}
         width={width}
         height={height}
-        className="border border-gray-300 bg-white"
+        className={chartSvgClass}
       />
 
       {tooltip.visible && (
         <div
-          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10"
+          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10 text-gray-800"
           style={{
             left: tooltip.x + "px",
             top: tooltip.y + "px",

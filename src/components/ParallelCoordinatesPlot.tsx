@@ -4,6 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { StateData } from "@/types";
 import { formatValue } from "@/lib/utils";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 interface ParallelCoordinatesPlotProps {
   width?: number;
@@ -83,6 +88,9 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
+    // Set explicit background
+    svg.attr("style", "background-color: white;");
+
     const margin = { top: 50, right: 50, bottom: 50, left: 50 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
@@ -145,7 +153,10 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         .call(d3.axisLeft(metricScales[metric]).ticks(5))
         .call((g) => g.select(".domain").remove())
         .call((g) => {
-          g.selectAll("text").attr("transform", "translate(10,0)");
+          g.selectAll("text")
+            .attr("transform", "translate(10,0)")
+            .attr("fill", chartColors.text);
+          g.selectAll("line").attr("stroke", chartColors.axis);
         });
 
       // Add metric name
@@ -154,6 +165,7 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         .attr("y", -10)
         .attr("text-anchor", "middle")
         .attr("font-size", "12px")
+        .attr("fill", chartColors.text)
         .text(metric.length > 15 ? metric.substring(0, 12) + "..." : metric)
         .on("mouseover", (event) => {
           if (metric.length > 15) {
@@ -208,7 +220,7 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
     const colorScale = d3
       .scaleOrdinal<string>()
       .domain(statesData.map((d) => d.State))
-      .range(d3.schemeCategory10);
+      .range(chartColors.colorScale);
 
     // Draw lines for each state
     normalizedData.forEach((state) => {
@@ -297,15 +309,18 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
       .attr("x", width / 2)
       .attr("y", 20)
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "bold")
+      .attr("font-size", "16px")
+      .attr("font-weight", "bold")
+      .attr("fill", chartColors.text)
       .text("Parallel Coordinates Plot");
   }, [statesData, selectedMetrics, width, height, selectedStates]);
 
   return (
-    <div className="relative">
+    <div className="relative bg-white p-4 rounded border border-gray-200">
       <div className="mb-4">
-        <div className="font-medium mb-2">Select and Reorder Metrics</div>
+        <div className="font-medium mb-2 text-gray-800">
+          Select and Reorder Metrics
+        </div>
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedMetrics.map((metric, index) => (
             <div
@@ -330,7 +345,7 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
           ))}
         </div>
 
-        <div className="font-medium mb-2">Available Metrics</div>
+        <div className="font-medium mb-2 text-gray-800">Available Metrics</div>
         <div className="flex flex-wrap gap-2">
           {availableMetrics
             .filter((m) => !selectedMetrics.includes(m))
@@ -350,12 +365,12 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         ref={svgRef}
         width={width}
         height={height}
-        className="border border-gray-300 bg-white"
+        className={chartSvgClass}
       />
 
       {tooltip.visible && (
         <div
-          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10"
+          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10 text-gray-800"
           style={{
             left: tooltip.x + "px",
             top: tooltip.y + "px",

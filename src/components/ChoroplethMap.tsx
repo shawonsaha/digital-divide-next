@@ -5,6 +5,11 @@ import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import { StateData, TopoJSONFeature } from "@/types";
 import { getStateColor, fipsToStateMap } from "@/lib/utils";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 interface ChoroplethMapProps {
   width?: number;
@@ -62,6 +67,9 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous elements
 
+    // Set explicit background
+    svg.attr("style", "background-color: white;");
+
     const g = svg.append("g");
 
     // Create color scale
@@ -78,21 +86,23 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
     const path = d3.geoPath();
 
     // Extract states features from topojson
-    const states = topojson.feature(topoData, topoData.objects.states)
-      .features as TopoJSONFeature[];
+    const states = topojson.feature(
+      topoData,
+      topoData.objects.states
+    ) as unknown as { features: TopoJSONFeature[] };
 
     // Draw states
     g.selectAll("path")
-      .data(states)
+      .data(states.features)
       .join("path")
       .attr("d", path as any)
       .attr("fill", (d) => {
         const stateData = dataByFips.get(d.id);
-        if (!stateData) return "#ccc";
+        if (!stateData) return "#e5e7eb"; // Light gray for unknown states
         const value = parseFloat(stateData[selectedMetric]);
-        return isNaN(value) ? "#ccc" : getStateColor(value, colorScale);
+        return isNaN(value) ? "#e5e7eb" : getStateColor(value, colorScale);
       })
-      .attr("stroke", "#fff")
+      .attr("stroke", "#ffffff")
       .attr("stroke-width", 0.5)
       .attr("class", (d) => {
         const isSelected = selectedStates.some((s) => s.id === d.id);
@@ -186,10 +196,13 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
       .call(legendXAxis)
       .select(".domain")
       .remove();
+
+    // Ensure legend text is visible
+    legend.selectAll("text").attr("fill", chartColors.text);
   }, [data, topoData, selectedMetric, selectedStates]);
 
   return (
-    <div className="relative">
+    <div className="relative bg-white p-4 rounded border border-gray-200">
       <div className="flex mb-4 space-x-2">
         <button
           onClick={toggleSelectionMode}
@@ -209,12 +222,12 @@ const ChoroplethMap: React.FC<ChoroplethMapProps> = ({
         ref={svgRef}
         width={width}
         height={height}
-        className="border border-gray-300 bg-white"
+        className={chartSvgClass}
       />
 
       {tooltip.visible && (
         <div
-          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10"
+          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10 text-gray-800"
           style={{
             left: tooltip.x + "px",
             top: tooltip.y + "px",

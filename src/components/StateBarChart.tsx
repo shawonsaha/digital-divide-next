@@ -4,6 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { StateData } from "@/types";
 import { formatValue } from "@/lib/utils";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 interface StateBarChartProps {
   width?: number;
@@ -47,6 +52,9 @@ const StateBarChart: React.FC<StateBarChartProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous elements
 
+    // Set explicit background
+    svg.attr("style", "background-color: white;");
+
     const margin = {
       top: 60,
       right: 60,
@@ -63,8 +71,9 @@ const StateBarChart: React.FC<StateBarChartProps> = ({
       .attr("x", width / 2)
       .attr("y", 20)
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "bold")
+      .attr("font-size", "16px")
+      .attr("font-weight", "bold")
+      .attr("fill", chartColors.text)
       .text(`Data for ${stateData.State}`);
 
     // Create normalized metrics for display
@@ -143,7 +152,9 @@ const StateBarChart: React.FC<StateBarChartProps> = ({
       .attr("y", (d) => yScale(d.name) || 0)
       .attr("width", (d) => xScale(d.chartValue) - margin.left)
       .attr("height", yScale.bandwidth())
-      .attr("fill", (d) => (d.name === currentMetric ? "orange" : "steelblue"))
+      .attr("fill", (d) =>
+        d.name === currentMetric ? chartColors.accent1 : chartColors.bars
+      )
       .on("mouseover", (event, d) => {
         setTooltip({
           visible: true,
@@ -195,8 +206,9 @@ const StateBarChart: React.FC<StateBarChartProps> = ({
       .attr("x", width / 2)
       .attr("y", 40)
       .attr("text-anchor", "middle")
-      .style("font-size", "11px")
-      .style("font-style", "italic")
+      .attr("font-size", "11px")
+      .attr("font-style", "italic")
+      .attr("fill", chartColors.text)
       .text("Note: Median Household Income is scaled down for comparison");
   }, [stateData, currentMetric, width, height, onMetricSelect]);
 
@@ -217,12 +229,12 @@ const StateBarChart: React.FC<StateBarChartProps> = ({
         ref={svgRef}
         width={width}
         height={height}
-        className="border border-gray-300 bg-white"
+        className={chartSvgClass}
       />
 
       {tooltip.visible && (
         <div
-          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10"
+          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10 text-gray-800"
           style={{
             left: tooltip.x + "px",
             top: tooltip.y + "px",

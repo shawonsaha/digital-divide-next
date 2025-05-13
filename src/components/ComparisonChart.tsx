@@ -4,6 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { StateData } from "@/types";
 import { formatValue } from "@/lib/utils";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 interface ComparisonChartProps {
   width?: number;
@@ -72,6 +77,9 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
+    // Set explicit background
+    svg.attr("style", "background-color: white;");
+
     const margin = simpleMode
       ? { top: 30, right: 30, bottom: 50, left: 40 }
       : { top: 40, right: 120, bottom: 60, left: 60 };
@@ -115,7 +123,7 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({
     const colorScale = d3
       .scaleOrdinal<string>()
       .domain(statesData.map((d) => d.State))
-      .range(d3.schemeCategory10);
+      .range(chartColors.colorScale);
 
     // Draw X axis
     svg
@@ -249,7 +257,8 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({
         .attr("x", -(height / 2))
         .attr("y", 15)
         .attr("text-anchor", "middle")
-        .style("font-size", "12px")
+        .attr("font-size", "12px")
+        .attr("fill", chartColors.text)
         .text("Value");
     }
   };
@@ -275,12 +284,12 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({
         ref={svgRef}
         width={width}
         height={height}
-        className="border border-gray-300 bg-white"
+        className={chartSvgClass}
       />
 
       {tooltip.visible && (
         <div
-          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10"
+          className="absolute bg-white border border-gray-300 rounded p-2 shadow-md text-sm pointer-events-none z-10 text-gray-800"
           style={{
             left: tooltip.x + "px",
             top: tooltip.y + "px",

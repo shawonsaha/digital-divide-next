@@ -4,6 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { StateData } from "@/types";
 import { formatValue } from "@/lib/utils";
+import {
+  chartColors,
+  chartContainerClass,
+  chartSvgClass,
+} from "@/lib/chartStyles";
 
 interface RadarChartProps {
   width?: number;
@@ -39,6 +44,9 @@ const RadarChart: React.FC<RadarChartProps> = ({
     // Setup
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+
+    // Set explicit background color
+    svg.attr("style", "background-color: white;");
 
     const margin = { top: 50, right: 80, bottom: 50, left: 80 };
     const chartWidth = width - margin.left - margin.right;
@@ -95,7 +103,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
         .attr("cy", 0)
         .attr("r", radiusScale(t))
         .attr("fill", "none")
-        .attr("stroke", "#ccc")
+        .attr("stroke", chartColors.grid)
         .attr("stroke-dasharray", "2,2");
 
       g.append("text")
@@ -103,6 +111,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
         .attr("y", -radiusScale(t) - 5)
         .attr("text-anchor", "middle")
         .attr("font-size", "8px")
+        .attr("fill", chartColors.text)
         .text(`${t}%`);
     });
 
@@ -117,7 +126,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
         .attr("y1", 0)
         .attr("x2", x)
         .attr("y2", y)
-        .attr("stroke", "#999")
+        .attr("stroke", chartColors.axis)
         .attr("stroke-width", 1);
 
       g.append("text")
@@ -126,6 +135,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
         .attr("text-anchor", angle > Math.PI ? "end" : "start")
         .attr("dominant-baseline", "middle")
         .attr("font-size", "10px")
+        .attr("fill", chartColors.text)
         .text(metric.length > 15 ? metric.substring(0, 12) + "..." : metric)
         .on("mouseover", (event) => {
           if (metric.length > 15) {
@@ -169,7 +179,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
     const colorScale = d3
       .scaleOrdinal<string>()
       .domain(statesData.map((d) => d.State))
-      .range(d3.schemeCategory10);
+      .range(chartColors.colorScale);
 
     // Draw polygons
     normalizedData.forEach((state) => {
@@ -232,8 +242,9 @@ const RadarChart: React.FC<RadarChartProps> = ({
       .attr("x", width / 2)
       .attr("y", 20)
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "bold")
+      .attr("font-size", "16px")
+      .attr("font-weight", "bold")
+      .attr("fill", chartColors.text)
       .text(`Radar Chart: ${statesData.length} States`);
   }, [statesData, metrics, width, height, onMetricSelect]);
 
@@ -243,7 +254,7 @@ const RadarChart: React.FC<RadarChartProps> = ({
         ref={svgRef}
         width={width}
         height={height}
-        className="border border-gray-300 bg-white"
+        className={`${chartSvgClass} border border-gray-300`}
       />
       {tooltip.visible && (
         <div
