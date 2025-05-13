@@ -10,6 +10,7 @@ import ParallelCoordinatesPlot from "./ParallelCoordinatesPlot";
 import RegionalMap from "./RegionalMap";
 import { StateData, SelectedState } from "@/types";
 import { fetchCSVData, fetchTopoJSONData, getMetrics } from "@/lib/utils";
+import { useWindowSize } from "@/lib/hooks";
 
 // Define regions for the US
 const regions: Record<string, string[]> = {
@@ -64,6 +65,7 @@ const regions: Record<string, string[]> = {
 };
 
 const Dashboard: React.FC = () => {
+  const { width: windowWidth } = useWindowSize();
   const [stateData, setStateData] = useState<StateData[]>([]);
   const [topoData, setTopoData] = useState<any>(null);
   const [metrics, setMetrics] = useState<string[]>([]);
@@ -189,7 +191,7 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-white text-black">
+    <div className="max-w-[98%] mx-auto px-2 py-8 bg-white text-black">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Digital Divide Dashboard
       </h1>
@@ -231,8 +233,8 @@ const Dashboard: React.FC = () => {
       {/* Standard visualization mode */}
       {visualizationMode === "default" && (
         <>
-          <div className="flex flex-col lg:flex-row gap-6 mb-8">
-            <div className="flex-1">
+          <div className="flex flex-col lg:flex-row gap-2 justify-between mb-8">
+            <div className="lg:w-[48%]">
               {topoData && (
                 <ChoroplethMap
                   data={stateData}
@@ -243,13 +245,13 @@ const Dashboard: React.FC = () => {
                   multipleSelectionMode={multipleSelectionMode}
                   toggleSelectionMode={toggleSelectionMode}
                   clearSelection={clearSelection}
-                  width={600}
-                  height={400}
+                  width={650}
+                  height={450}
                 />
               )}
             </div>
 
-            <div className="flex-1">
+            <div className="lg:w-[48%]">
               {selectedStates.length === 0 && (
                 <div className="flex items-center justify-center h-full border border-gray-300 rounded bg-white text-gray-500 p-4">
                   Select a state on the map to view details
@@ -261,8 +263,8 @@ const Dashboard: React.FC = () => {
                   stateData={selectedStates[0].data}
                   currentMetric={selectedMetric}
                   onMetricSelect={handleMetricSelect}
-                  width={480}
-                  height={400}
+                  width={650}
+                  height={450}
                 />
               )}
 
@@ -271,8 +273,8 @@ const Dashboard: React.FC = () => {
                   statesData={selectedStates.map((s) => s.data)}
                   currentMetric={selectedMetric}
                   onMetricSelect={handleMetricSelect}
-                  width={480}
-                  height={400}
+                  width={650}
+                  height={450}
                   simpleMode={true}
                 />
               )}
@@ -286,8 +288,8 @@ const Dashboard: React.FC = () => {
                 statesData={selectedStates.map((s) => s.data)}
                 currentMetric={selectedMetric}
                 onMetricSelect={handleMetricSelect}
-                width={960}
-                height={500}
+                width={1350}
+                height={550}
               />
             </div>
           )}
@@ -340,8 +342,8 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="lg:w-1/2">
+            <div className="flex flex-col lg:flex-row gap-2 justify-between">
+              <div className="lg:w-[48%]">
                 {topoData && !selectedRegion && (
                   <ChoroplethMap
                     data={stateData}
@@ -352,8 +354,8 @@ const Dashboard: React.FC = () => {
                     multipleSelectionMode={multipleSelectionMode}
                     toggleSelectionMode={toggleSelectionMode}
                     clearSelection={clearSelection}
-                    width={600}
-                    height={400}
+                    width={650}
+                    height={450}
                   />
                 )}
                 {topoData && selectedRegion && (
@@ -363,12 +365,12 @@ const Dashboard: React.FC = () => {
                     selectedMetrics={selectedMetrics}
                     onRegionSelect={handleRegionSelect}
                     selectedRegion={selectedRegion}
-                    width={600}
-                    height={400}
+                    width={650}
+                    height={450}
                   />
                 )}
               </div>
-              <div className="lg:w-1/2">
+              <div className="lg:w-[48%]">
                 {!selectedRegion && (
                   <>
                     {selectedStates.length === 0 ? (
@@ -376,136 +378,125 @@ const Dashboard: React.FC = () => {
                         statesData={stateData.slice(0, 10)} // Show top 10 states
                         metric={selectedMetric}
                         onStateSelect={handleStateSelect}
-                        width={600}
-                        height={400}
+                        width={650}
+                        height={450}
                       />
                     ) : (
-                      <GroupBarChart
-                        statesData={selectedStates.map((s) => s.data)}
-                        metric={selectedMetric}
-                        onStateSelect={handleStateSelect}
-                        width={600}
-                        height={400}
-                      />
+                      <div className="space-y-4">
+                        <div className="flex flex-col lg:flex-row gap-6">
+                          <div className="lg:w-1/2">
+                            <GroupBarChart
+                              statesData={selectedStates.map((s) => s.data)}
+                              metric={selectedMetric}
+                              onStateSelect={handleStateSelect}
+                              width={320}
+                              height={450}
+                            />
+                          </div>
+                          <div className="lg:w-1/2">
+                            <RadarChart
+                              statesData={selectedStates.map((s) => s.data)}
+                              metrics={selectedMetrics}
+                              onMetricSelect={handleMetricSelect}
+                              width={320}
+                              height={450}
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <h3 className="text-lg font-medium mb-2 text-gray-800">
+                            Selected Metrics
+                          </h3>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {metrics.map((metric) => (
+                              <div
+                                key={metric}
+                                className={`
+                                  px-2 py-1 border rounded cursor-pointer
+                                  ${
+                                    selectedMetrics.includes(metric)
+                                      ? "bg-blue-100 border-blue-300 text-blue-800"
+                                      : "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-800"
+                                  }
+                                `}
+                                onClick={() => {
+                                  setSelectedMetrics(
+                                    selectedMetrics.includes(metric)
+                                      ? selectedMetrics.filter(
+                                          (m) => m !== metric
+                                        )
+                                      : [...selectedMetrics, metric]
+                                  );
+                                }}
+                              >
+                                {typeof metric === "string" &&
+                                metric.length > 15
+                                  ? metric.substring(0, 12) + "..."
+                                  : metric}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </>
                 )}
                 {selectedRegion && (
-                  <RadarChart
-                    statesData={selectedStates.map((s) => s.data)}
-                    metrics={selectedMetrics}
-                    onMetricSelect={handleMetricSelect}
-                    width={600}
-                    height={400}
-                  />
-                )}
-                {selectedRegion && (
-                  <div className="mt-4">
-                    <h3 className="text-lg font-medium mb-2 text-gray-800">
-                      Selected Metrics
-                    </h3>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {metrics.map((metric) => (
-                        <div
-                          key={metric}
-                          className={`
-                            px-2 py-1 border rounded cursor-pointer
-                            ${
-                              selectedMetrics.includes(metric)
-                                ? "bg-blue-100 border-blue-300 text-blue-800"
-                                : "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-800"
-                            }
-                          `}
-                          onClick={() => {
-                            const newSelectedMetrics = selectedMetrics.includes(
-                              metric
-                            )
-                              ? selectedMetrics.filter((m) => m !== metric)
-                              : [...selectedMetrics, metric];
-                            setSelectedMetrics(newSelectedMetrics);
-                          }}
-                        >
-                          {metric.length > 15
-                            ? metric.substring(0, 12) + "..."
-                            : metric}
-                        </div>
-                      ))}
+                  <div className="space-y-4">
+                    <div className="flex flex-col lg:flex-row gap-6">
+                      <div className="lg:w-1/2">
+                        <GroupBarChart
+                          statesData={selectedStates.map((s) => s.data)}
+                          metric={selectedMetric}
+                          onStateSelect={handleStateSelect}
+                          width={320}
+                          height={450}
+                        />
+                      </div>
+                      <div className="lg:w-1/2">
+                        <RadarChart
+                          statesData={selectedStates.map((s) => s.data)}
+                          metrics={selectedMetrics}
+                          onMetricSelect={handleMetricSelect}
+                          width={320}
+                          height={450}
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-2">
+                      <h3 className="text-lg font-medium mb-2 text-gray-800">
+                        Selected Metrics
+                      </h3>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {metrics.map((metric) => (
+                          <div
+                            key={metric}
+                            className={`
+                              px-2 py-1 border rounded cursor-pointer
+                              ${
+                                selectedMetrics.includes(metric)
+                                  ? "bg-blue-100 border-blue-300 text-blue-800"
+                                  : "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-800"
+                              }
+                            `}
+                            onClick={() => {
+                              setSelectedMetrics(
+                                selectedMetrics.includes(metric)
+                                  ? selectedMetrics.filter((m) => m !== metric)
+                                  : [...selectedMetrics, metric]
+                              );
+                            }}
+                          >
+                            {typeof metric === "string" && metric.length > 15
+                              ? metric.substring(0, 12) + "..."
+                              : metric}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
-              Multi-State Comparison
-            </h2>
-            <div className="flex flex-col space-y-4">
-              <div className="flex justify-end">
-                <button
-                  onClick={toggleSelectionMode}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mr-4"
-                >
-                  {multipleSelectionMode
-                    ? "Selection Mode: ON"
-                    : "Selection Mode: OFF"}
-                </button>
-                <button
-                  onClick={clearSelection}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Clear Selection
-                </button>
-              </div>
-
-              {selectedStates.length > 0 ? (
-                <div className="flex flex-col lg:flex-row gap-6">
-                  <RadarChart
-                    statesData={selectedStates.map((s) => s.data)}
-                    metrics={selectedMetrics}
-                    onMetricSelect={handleMetricSelect}
-                    width={600}
-                    height={500}
-                  />
-                  <div className="lg:w-1/2">
-                    <h3 className="text-lg font-medium mb-2 text-gray-800">
-                      Selected Metrics
-                    </h3>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {metrics.map((metric) => (
-                        <div
-                          key={metric}
-                          className={`
-                            px-2 py-1 border rounded cursor-pointer
-                            ${
-                              selectedMetrics.includes(metric)
-                                ? "bg-blue-100 border-blue-300 text-blue-800"
-                                : "bg-gray-100 border-gray-300 hover:bg-gray-200 text-gray-800"
-                            }
-                          `}
-                          onClick={() => {
-                            const newSelectedMetrics = selectedMetrics.includes(
-                              metric
-                            )
-                              ? selectedMetrics.filter((m) => m !== metric)
-                              : [...selectedMetrics, metric];
-                            setSelectedMetrics(newSelectedMetrics);
-                          }}
-                        >
-                          {metric.length > 15
-                            ? metric.substring(0, 12) + "..."
-                            : metric}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-64 border border-gray-300 rounded bg-white text-gray-500">
-                  Select states on the map to compare
-                </div>
-              )}
             </div>
           </div>
 
@@ -513,13 +504,15 @@ const Dashboard: React.FC = () => {
             <h2 className="text-2xl font-bold mb-6 text-gray-800">
               Parallel Coordinates Analysis
             </h2>
-            <ParallelCoordinatesPlot
-              statesData={stateData}
-              availableMetrics={metrics}
-              selectedStates={selectedStates.map((s) => s.data.State)}
-              width={1200}
-              height={500}
-            />
+            <div className="w-full overflow-x-auto">
+              <ParallelCoordinatesPlot
+                statesData={stateData}
+                availableMetrics={metrics}
+                selectedStates={selectedStates.map((s) => s.data.State)}
+                width={windowWidth ? Math.min(windowWidth - 100, 1800) : 1800}
+                height={550}
+              />
+            </div>
           </div>
         </div>
       )}

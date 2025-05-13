@@ -66,6 +66,16 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
     setDragPosition(index);
   };
 
+  const onDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragPosition(index);
+  };
+
+  const onDragEnd = () => {
+    setDraggedMetric(null);
+    setDragPosition(null);
+  };
+
   const onDrop = (targetIndex: number) => {
     if (draggedMetric) {
       const sourceIndex = selectedMetrics.indexOf(draggedMetric);
@@ -165,7 +175,9 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         .attr("y", -10)
         .attr("text-anchor", "middle")
         .attr("font-size", "12px")
+        .attr("font-weight", "bold")
         .attr("fill", chartColors.text)
+        .attr("cursor", "move")
         .text(metric.length > 15 ? metric.substring(0, 12) + "..." : metric)
         .on("mouseover", (event) => {
           if (metric.length > 15) {
@@ -176,6 +188,7 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
               content: <>{metric}</>,
             });
           }
+          d3.select(event.target).attr("fill", chartColors.highlight);
         })
         .on("mousemove", (event) => {
           setTooltip((prev) => ({
@@ -184,8 +197,9 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
             y: event.pageY + 10,
           }));
         })
-        .on("mouseout", () => {
+        .on("mouseout", (event) => {
           setTooltip((prev) => ({ ...prev, visible: false }));
+          d3.select(event.target).attr("fill", chartColors.text);
         });
 
       // Add brush for this axis
@@ -321,22 +335,34 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
         <div className="font-medium mb-2 text-gray-800">
           Select and Reorder Metrics
         </div>
+        <p className="text-sm text-gray-600 mb-2">
+          <span className="inline-block mr-1">↔️</span> Drag metrics to reorder
+          them in the plot. Click the × to remove a metric.
+        </p>
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedMetrics.map((metric, index) => (
             <div
               key={metric}
               draggable
               onDragStart={() => startDrag(metric)}
-              onDragOver={(e) => onDrag(e, index)}
+              onDragOver={(e) => onDragOver(e, index)}
+              onDragEnd={onDragEnd}
               onDrop={() => onDrop(index)}
               className={`
-                px-2 py-1 bg-blue-100 border border-blue-300 rounded cursor-move
-                ${dragPosition === index ? "border-dashed border-blue-500" : ""}
+                px-2 py-1 bg-blue-100 border border-blue-300 rounded cursor-move flex items-center
+                ${
+                  draggedMetric === metric
+                    ? "opacity-50"
+                    : dragPosition === index
+                    ? "border-dashed border-2 border-blue-500"
+                    : ""
+                }
               `}
             >
+              <span className="mr-1 text-gray-500 cursor-move">⋮⋮</span>
               {metric.length > 15 ? metric.substring(0, 12) + "..." : metric}
               <button
-                className="ml-2 text-red-500"
+                className="ml-2 text-red-500 hover:text-red-700"
                 onClick={() => toggleMetric(metric)}
               >
                 ×
