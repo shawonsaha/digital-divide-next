@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -12,7 +13,23 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+
+        <div className="text-center sm:text-left">
+          <h1 className="text-3xl font-bold mb-4">Digital Divide Project</h1>
+          <p className="mb-6">
+            Visualize and analyze the digital divide across different states in
+            the US.
+          </p>
+
+          <Link
+            href="/dashboard"
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-base h-12 px-6 mx-auto sm:mx-0 max-w-fit"
+          >
+            Go to Dashboard
+          </Link>
+        </div>
+
+        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)] mt-6">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}
             <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
