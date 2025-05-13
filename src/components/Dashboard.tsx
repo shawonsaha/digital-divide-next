@@ -191,50 +191,25 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="max-w-[98%] mx-auto px-2 py-8 bg-white text-black">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+    <div className="max-w-[99%] mx-auto px-2 py-4 bg-white text-black">
+      <h1 className="text-2xl font-bold mb-3 text-center text-gray-800">
         Digital Divide Dashboard
       </h1>
 
-      <div className="flex justify-between mb-6">
-        <div className="w-full md:w-1/2">
-          <label
-            htmlFor="metric"
-            className="block font-medium mb-2 text-gray-700"
-          >
-            Select Primary Metric:
-          </label>
-          <select
-            id="metric"
-            value={selectedMetric}
-            onChange={handleMetricChange}
-            className="w-full p-2 border border-gray-300 rounded bg-white text-gray-800"
-          >
-            {metrics.map((metric) => (
-              <option key={metric} value={metric}>
-                {metric}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex items-end">
-          <button
-            onClick={toggleVisualizationMode}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ml-4"
-          >
-            {visualizationMode === "default"
-              ? "Advanced View"
-              : "Standard View"}
-          </button>
-        </div>
+      <div className="flex justify-end mb-3">
+        <button
+          onClick={toggleVisualizationMode}
+          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+        >
+          {visualizationMode === "default" ? "Advanced View" : "Standard View"}
+        </button>
       </div>
 
       {/* Standard visualization mode */}
       {visualizationMode === "default" && (
         <>
-          <div className="flex flex-col lg:flex-row gap-2 justify-between mb-8">
-            <div className="lg:w-[48%]">
+          <div className="flex flex-col lg:flex-row gap-2 justify-between mb-4">
+            <div className="lg:w-[49%]">
               {topoData && (
                 <ChoroplethMap
                   data={stateData}
@@ -245,13 +220,13 @@ const Dashboard: React.FC = () => {
                   multipleSelectionMode={multipleSelectionMode}
                   toggleSelectionMode={toggleSelectionMode}
                   clearSelection={clearSelection}
-                  width={650}
-                  height={450}
+                  width={700}
+                  height={380}
                 />
               )}
             </div>
 
-            <div className="lg:w-[48%]">
+            <div className="lg:w-[49%]">
               {selectedStates.length === 0 && (
                 <div className="flex items-center justify-center h-full border border-gray-300 rounded bg-white text-gray-500 p-4">
                   Select a state on the map to view details
@@ -282,14 +257,14 @@ const Dashboard: React.FC = () => {
           </div>
 
           {selectedStates.length > 1 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4">Detailed Comparison</h2>
+            <div className="mt-4">
+              <h2 className="text-xl font-bold mb-2">Detailed Comparison</h2>
               <ComparisonChart
                 statesData={selectedStates.map((s) => s.data)}
                 currentMetric={selectedMetric}
                 onMetricSelect={handleMetricSelect}
-                width={1350}
-                height={550}
+                width={1400}
+                height={450}
               />
             </div>
           )}
@@ -298,9 +273,9 @@ const Dashboard: React.FC = () => {
 
       {/* Advanced visualization mode */}
       {visualizationMode === "advanced" && (
-        <div className="space-y-12">
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+        <div className="space-y-4">
+          <div className="bg-white p-3 rounded-lg border border-gray-200 shadow">
+            <h2 className="text-xl font-bold mb-2 text-gray-800">
               Interactive Choropleth & Bar Charts
             </h2>
             <div className="flex justify-end mb-4">
@@ -343,7 +318,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
             <div className="flex flex-col lg:flex-row gap-2 justify-between">
-              <div className="lg:w-[48%]">
+              <div className="lg:w-[49%]">
                 {topoData && !selectedRegion && (
                   <ChoroplethMap
                     data={stateData}
@@ -354,8 +329,8 @@ const Dashboard: React.FC = () => {
                     multipleSelectionMode={multipleSelectionMode}
                     toggleSelectionMode={toggleSelectionMode}
                     clearSelection={clearSelection}
-                    width={650}
-                    height={450}
+                    width={700}
+                    height={380}
                   />
                 )}
                 {topoData && selectedRegion && (
@@ -365,12 +340,12 @@ const Dashboard: React.FC = () => {
                     selectedMetrics={selectedMetrics}
                     onRegionSelect={handleRegionSelect}
                     selectedRegion={selectedRegion}
-                    width={650}
-                    height={450}
+                    width={700}
+                    height={380}
                   />
                 )}
               </div>
-              <div className="lg:w-[48%]">
+              <div className="lg:w-[49%]">
                 {!selectedRegion && (
                   <>
                     {selectedStates.length === 0 ? (
@@ -378,19 +353,19 @@ const Dashboard: React.FC = () => {
                         statesData={stateData.slice(0, 10)} // Show top 10 states
                         metric={selectedMetric}
                         onStateSelect={handleStateSelect}
-                        width={650}
-                        height={450}
+                        width={700}
+                        height={380}
                       />
                     ) : (
-                      <div className="space-y-4">
-                        <div className="flex flex-col lg:flex-row gap-6">
+                      <div className="space-y-2">
+                        <div className="flex flex-col lg:flex-row gap-3">
                           <div className="lg:w-1/2">
                             <GroupBarChart
                               statesData={selectedStates.map((s) => s.data)}
                               metric={selectedMetric}
                               onStateSelect={handleStateSelect}
-                              width={320}
-                              height={450}
+                              width={340}
+                              height={380}
                             />
                           </div>
                           <div className="lg:w-1/2">
@@ -398,21 +373,21 @@ const Dashboard: React.FC = () => {
                               statesData={selectedStates.map((s) => s.data)}
                               metrics={selectedMetrics}
                               onMetricSelect={handleMetricSelect}
-                              width={320}
-                              height={450}
+                              width={340}
+                              height={380}
                             />
                           </div>
                         </div>
                         <div className="mt-2">
-                          <h3 className="text-lg font-medium mb-2 text-gray-800">
+                          <h3 className="text-base font-medium mb-1 text-gray-800">
                             Selected Metrics
                           </h3>
-                          <div className="flex flex-wrap gap-2 mb-4">
+                          <div className="flex flex-wrap gap-1 mb-2">
                             {metrics.map((metric) => (
                               <div
                                 key={metric}
                                 className={`
-                                  px-2 py-1 border rounded cursor-pointer
+                                  px-2 py-0.5 text-xs border rounded cursor-pointer
                                   ${
                                     selectedMetrics.includes(metric)
                                       ? "bg-blue-100 border-blue-300 text-blue-800"
@@ -442,15 +417,15 @@ const Dashboard: React.FC = () => {
                   </>
                 )}
                 {selectedRegion && (
-                  <div className="space-y-4">
-                    <div className="flex flex-col lg:flex-row gap-6">
+                  <div className="space-y-2">
+                    <div className="flex flex-col lg:flex-row gap-3">
                       <div className="lg:w-1/2">
                         <GroupBarChart
                           statesData={selectedStates.map((s) => s.data)}
                           metric={selectedMetric}
                           onStateSelect={handleStateSelect}
-                          width={320}
-                          height={450}
+                          width={340}
+                          height={380}
                         />
                       </div>
                       <div className="lg:w-1/2">
@@ -458,21 +433,21 @@ const Dashboard: React.FC = () => {
                           statesData={selectedStates.map((s) => s.data)}
                           metrics={selectedMetrics}
                           onMetricSelect={handleMetricSelect}
-                          width={320}
-                          height={450}
+                          width={340}
+                          height={380}
                         />
                       </div>
                     </div>
                     <div className="mt-2">
-                      <h3 className="text-lg font-medium mb-2 text-gray-800">
+                      <h3 className="text-base font-medium mb-1 text-gray-800">
                         Selected Metrics
                       </h3>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-1 mb-2">
                         {metrics.map((metric) => (
                           <div
                             key={metric}
                             className={`
-                              px-2 py-1 border rounded cursor-pointer
+                              px-2 py-0.5 text-xs border rounded cursor-pointer
                               ${
                                 selectedMetrics.includes(metric)
                                   ? "bg-blue-100 border-blue-300 text-blue-800"
@@ -500,8 +475,8 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          <div className="bg-white p-3 rounded-lg border border-gray-200 shadow">
+            <h2 className="text-xl font-bold mb-2 text-gray-800">
               Parallel Coordinates Analysis
             </h2>
             <div className="w-full overflow-x-auto">
@@ -509,8 +484,8 @@ const Dashboard: React.FC = () => {
                 statesData={stateData}
                 availableMetrics={metrics}
                 selectedStates={selectedStates.map((s) => s.data.State)}
-                width={windowWidth ? Math.min(windowWidth - 100, 1800) : 1800}
-                height={550}
+                width={windowWidth ? Math.min(windowWidth - 50, 1900) : 1900}
+                height={450}
               />
             </div>
           </div>

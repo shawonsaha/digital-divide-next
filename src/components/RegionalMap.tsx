@@ -84,6 +84,7 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
   selectedRegion,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const zoomTransformRef = useRef<d3.ZoomTransform>(d3.zoomIdentity);
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
     x: number;
@@ -245,13 +246,126 @@ const RegionalMap: React.FC<RegionalMapProps> = ({
 
     // Create zoom behavior
     const zoom = d3
-      .zoom()
-      .scaleExtent([1, 8])
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.5, 10]) // Extend the zoom range like in ChoroplethMap
       .on("zoom", (event) => {
         g.attr("transform", event.transform);
+        zoomTransformRef.current = event.transform;
       });
 
+    // Add double-click to reset zoom
+    svg.on("dblclick", () => {
+      svg
+        .transition()
+        .duration(750)
+        .call(zoom.transform as any, d3.zoomIdentity);
+      zoomTransformRef.current = d3.zoomIdentity;
+    });
+
+    // Add zoom controls
+    const zoomControls = svg
+      .append("g")
+      .attr("class", "zoom-controls")
+      .attr("transform", `translate(${width - 60}, 20)`);
+
+    // Zoom in button
+    zoomControls
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 24)
+      .attr("height", 24)
+      .attr("fill", "white")
+      .attr("stroke", "#999")
+      .attr("rx", 3)
+      .style("cursor", "pointer")
+      .on("click", () => {
+        svg
+          .transition()
+          .duration(750)
+          .call(zoom.scaleBy as any, 1.3);
+      });
+
+    zoomControls
+      .append("text")
+      .attr("x", 12)
+      .attr("y", 16)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#555")
+      .style("font-size", "18px")
+      .style("pointer-events", "none")
+      .text("+");
+
+    // Zoom out button
+    zoomControls
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 30)
+      .attr("width", 24)
+      .attr("height", 24)
+      .attr("fill", "white")
+      .attr("stroke", "#999")
+      .attr("rx", 3)
+      .style("cursor", "pointer")
+      .on("click", () => {
+        svg
+          .transition()
+          .duration(750)
+          .call(zoom.scaleBy as any, 0.7);
+      });
+
+    zoomControls
+      .append("text")
+      .attr("x", 12)
+      .attr("y", 46)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#555")
+      .style("font-size", "18px")
+      .style("pointer-events", "none")
+      .text("−");
+
+    // Reset button
+    zoomControls
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 60)
+      .attr("width", 24)
+      .attr("height", 24)
+      .attr("fill", "white")
+      .attr("stroke", "#999")
+      .attr("rx", 3)
+      .style("cursor", "pointer")
+      .on("click", () => {
+        svg
+          .transition()
+          .duration(750)
+          .call(zoom.transform as any, d3.zoomIdentity);
+        zoomTransformRef.current = d3.zoomIdentity;
+      });
+
+    zoomControls
+      .append("text")
+      .attr("x", 12)
+      .attr("y", 76)
+      .attr("text-anchor", "middle")
+      .attr("fill", "#555")
+      .style("font-size", "12px")
+      .style("pointer-events", "none")
+      .text("⟲");
+
     svg.call(zoom as any);
+
+    // Apply existing transform if available, otherwise use initial zoom
+    if (zoomTransformRef.current !== d3.zoomIdentity) {
+      svg.call(zoom.transform as any, zoomTransformRef.current);
+    } else {
+      // Initial zoom out to show more context
+      const initialTransform = d3.zoomIdentity
+        .scale(0.95)
+        .translate(width * 0.025, height * 0.025);
+      svg.call(zoom.transform as any, initialTransform);
+      zoomTransformRef.current = initialTransform;
+    }
   }, [data, topoData, selectedRegion]);
 
   // Get states for selected region

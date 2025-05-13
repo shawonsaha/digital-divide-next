@@ -101,7 +101,7 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
     // Set explicit background
     svg.attr("style", "background-color: white;");
 
-    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+    const margin = { top: 30, right: 50, bottom: 30, left: 50 };
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
@@ -407,9 +407,9 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", 20)
+      .attr("y", 15)
       .attr("text-anchor", "middle")
-      .attr("font-size", "16px")
+      .attr("font-size", "14px")
       .attr("font-weight", "bold")
       .attr("fill", chartColors.text)
       .text("Parallel Coordinates Plot");
@@ -418,25 +418,26 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", 40)
+      .attr("y", 30)
       .attr("text-anchor", "middle")
-      .attr("font-size", "12px")
+      .attr("font-size", "10px")
       .attr("fill", chartColors.text)
       .text("↔️ Drag axis labels to reorder");
   }, [statesData, selectedMetrics, width, height, selectedStates]);
 
   return (
-    <div className="relative bg-white p-4 rounded border border-gray-200">
-      <div className="mb-4">
-        <div className="font-medium mb-2 text-gray-800">
-          Select and Reorder Metrics
+    <div className="relative bg-white p-2 rounded border border-gray-200">
+      <div className="mb-2">
+        <div className="flex items-center justify-between">
+          <div className="font-medium text-sm text-gray-800">
+            Select and Reorder Metrics
+          </div>
+          <p className="text-xs text-gray-600">
+            <span className="inline-block mr-1">↔️</span> Drag metrics to
+            reorder them
+          </p>
         </div>
-        <p className="text-sm text-gray-600 mb-2">
-          <span className="inline-block mr-1">↔️</span> Drag metrics to reorder
-          them in the plot or drag the axis labels directly on the chart. Click
-          the × to remove a metric.
-        </p>
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-1 mb-2">
           {selectedMetrics.map((metric, index) => (
             <div
               key={metric}
@@ -446,7 +447,7 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
               onDragEnd={onDragEnd}
               onDrop={() => onDrop(index)}
               className={`
-                px-2 py-1 bg-blue-100 border border-blue-300 rounded cursor-move flex items-center
+                px-2 py-0.5 text-xs bg-blue-100 border border-blue-300 rounded cursor-move flex items-center
                 ${
                   draggedMetric === metric
                     ? "opacity-50"
@@ -456,10 +457,10 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
                 }
               `}
             >
-              <span className="mr-1 text-gray-500 cursor-move">⋮⋮</span>
+              <span className="mr-1 text-gray-500 cursor-move text-xs">⋮</span>
               {metric.length > 15 ? metric.substring(0, 12) + "..." : metric}
               <button
-                className="ml-2 text-red-500 hover:text-red-700"
+                className="ml-1 text-red-500 hover:text-red-700 text-xs"
                 onClick={() => toggleMetric(metric)}
               >
                 ×
@@ -468,14 +469,16 @@ const ParallelCoordinatesPlot: React.FC<ParallelCoordinatesPlotProps> = ({
           ))}
         </div>
 
-        <div className="font-medium mb-2 text-gray-800">Available Metrics</div>
-        <div className="flex flex-wrap gap-2">
+        <div className="font-medium text-xs mb-1 text-gray-800">
+          Available Metrics
+        </div>
+        <div className="flex flex-wrap gap-1">
           {availableMetrics
             .filter((m) => !selectedMetrics.includes(m))
             .map((metric) => (
               <div
                 key={metric}
-                className="px-2 py-1 bg-gray-100 border border-gray-300 rounded cursor-pointer hover:bg-gray-200"
+                className="px-2 py-0.5 text-xs bg-gray-100 border border-gray-300 rounded cursor-pointer hover:bg-gray-200"
                 onClick={() => toggleMetric(metric)}
               >
                 {metric.length > 15 ? metric.substring(0, 12) + "..." : metric}
